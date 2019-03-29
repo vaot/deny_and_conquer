@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Hello World!</title>
+  </head>
+  <body>
+    <canvas id="grid" width= "800" height = "600" style="border: 1px solid black;">
+        <p>Your browser does not support HTML5 canvas</p>
+    </canvas>
+
+    <script>
+      var CanvasController = require('./public/grid.js');
+      // In renderer process (web page).
+      const { ipcRenderer } = require('electron')
+      const canvas = document.getElementById("grid");
+      const ctx = canvas.getContext('2d');
+
+      ipcRenderer.on('message', (event, payload) => {
+        switch (payload.type) {
+          case "move":
+            ctx.beginPath();
+            ctx.fillStyle = CanvasController.pen.color;
+            ctx.arc(payload.args.x, payload.args.y, 5, 0, 2 * Math.PI, true);
+            ctx.fill();
+            break;
+          case "occupied":
+            let range = payload.args.range;
+            ctx.rect(range[0], range[2], range[1] - range[0], range[3]-range[2]);
+            ctx.fillStyle = CanvasController.pen.color;
+            ctx.fill();
+          default:
+            break;
+        }
+      })
+    </script>
+  </body>
+</html>
