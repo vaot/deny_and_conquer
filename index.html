@@ -3,18 +3,73 @@
   <head>
     <meta charset="UTF-8">
     <title>Hello World!</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/css/bootstrap-colorpicker.min.css">
+    <link rel="stylesheet" href="./public/app.css">
   </head>
   <body>
-    <canvas id="grid" width= "800" height = "600" style="border: 1px solid black;">
-        <p>Your browser does not support HTML5 canvas</p>
-    </canvas>
+    <div class='container'>
+      <section>
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" class="form-control" id="username" placeholder="Username">
+        </div>
+        <div class="form-group">
+          <label for="game_id">Game Session Id</label>
+          <input type="text" class="form-control" id="game_id" placeholder="Game Sesion Id">
+        </div>
+        <div class="form-group">
+          <label for="formControlRange">Number of boxes</label>
+          <span data-number_boxes="bind"></span>
+          <input type="range" max="20" class="form-control-range" id="number_boxes">
+        </div>
+        <div class="form-group">
+          <label for="formControlRange">Percetange of the box</label>
+          <span data-number_boxes="bind"></span>
+          <input type="range" max="20" class="form-control-range" id="number_boxes">
+        </div>
+        <div class="form-group">
+          <label for="user_color">Color</label>
+          <input type="text" class="form-control" id="user_color">
+        </div>
+        <div class="form-group">
+          <button id="play" type="button" class="btn btn-primary">Play</button>
+        </div>
+      </section>
+
+      <section id="grid_section" style="display:none">
+        <canvas id="grid" width= "800" height = "600" style="border: 1px solid black;">
+          <p>Your browser does not support HTML5 canvas</p>
+        </canvas>
+      </section>
+    </div>
 
     <script>
+      window.jQuery = require('jquery');
+      window.$ = window.jQuery;
+    </script>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/js/bootstrap-colorpicker.min.js"></script>
+    <script>
       var CanvasController = require('./public/grid.js');
-      // In renderer process (web page).
+      var Game = require('./public/Game.js');
+
       const { ipcRenderer } = require('electron')
       const canvas = document.getElementById("grid");
       const ctx = canvas.getContext('2d');
+
+      jQuery(function() {
+        let game = new Game();
+        game.init();
+        jQuery('#user_color').colorpicker();
+      });
+
+      jQuery("#number_boxes").on('change', () => {
+        jQuery(`[data-number_boxes='bind']`).text(
+          jQuery("#number_boxes").val()
+        );
+
+      }).trigger("change");
 
       ipcRenderer.on('message', (event, payload) => {
         switch (payload.type) {
@@ -23,12 +78,15 @@
             ctx.fillStyle = CanvasController.pen.color;
             ctx.arc(payload.args.x, payload.args.y, 5, 0, 2 * Math.PI, true);
             ctx.fill();
+            console.log(payload);
             break;
           case "occupied":
+            console.log(payload);
             let range = payload.args.range;
             ctx.rect(range[0], range[2], range[1] - range[0], range[3]-range[2]);
             ctx.fillStyle = CanvasController.pen.color;
             ctx.fill();
+          // TO DO: Add handler for configuration
           default:
             break;
         }
