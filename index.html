@@ -37,7 +37,7 @@
         </div>
       </section>
 
-      <section id="grid_section" style="display:none">
+      <section id="grid_section" >
         <canvas id="grid" width= "800" height = "600" style="border: 1px solid black;">
           <p>Your browser does not support HTML5 canvas</p>
         </canvas>
@@ -52,6 +52,11 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/js/bootstrap-colorpicker.min.js"></script>
     <script>
       var CanvasController = require('./public/grid.js');
+
+      var gridObj = new CanvasController(2, 0.5, 'rgb(255, 165, 0)', 5);
+
+      gridObj.drawGrid();
+
       var Game = require('./public/Game.js');
 
       const { ipcRenderer } = require('electron')
@@ -75,16 +80,20 @@
         switch (payload.type) {
           case "move":
             ctx.beginPath();
-            ctx.fillStyle = CanvasController.pen.color;
-            ctx.arc(payload.args.x, payload.args.y, 5, 0, 2 * Math.PI, true);
-            ctx.fill();
+            // ctx.fillStyle = gridObj.getColor();
+            // ctx.arc(payload.args.x, payload.args.y, 5, 0, 2 * Math.PI, true);
+            // ctx.fill();
+            ctx.strokeStyle = gridObj.getColor();
+            ctx.lineWidth = gridObj.getWidth();
+            ctx.lineTo(payload.args.x, payload.args.y);
+            ctx.stroke();            
             console.log(payload);
             break;
           case "occupied":
             console.log(payload);
             let range = payload.args.range;
             ctx.rect(range[0], range[2], range[1] - range[0], range[3]-range[2]);
-            ctx.fillStyle = CanvasController.pen.color;
+            ctx.fillStyle = gridObj.getColor();
             ctx.fill();
           // TO DO: Add handler for configuration
           default:
