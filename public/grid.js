@@ -19,15 +19,19 @@ module.exports = class Grid {
             // console.log(gridArr_y);
         } else {
             console.log("not support");
-        }        
+        }
         canvas.onmousedown = event => this.onMouseDown(event);
         canvas.onmouseup = event => this.onMouseUp(event);
         canvas.onmousemove = event => this.onMouseMove(event);
     }
 
-    getColor() { return this.penColor}
+    getColor() {
+        return this.penColor;
+    }
 
-    getWidth() {return this.penWidth}
+    getWidth() {
+        return this.penWidth;
+    }
 
     drawGrid() {
         var w = canvas.width;
@@ -76,10 +80,10 @@ module.exports = class Grid {
         // console.log("range is", range);
         started = true;
         occupyArr = this.create2DArray(Math.floor(50 / this.penWidth), Math.floor(50 / this.penWidth));
-        
+
         // console.log(gridArr);
         start_x = range[0];
-        start_y = range[2];        
+        start_y = range[2];
     }
 
     onMouseUp(event) {
@@ -99,7 +103,8 @@ module.exports = class Grid {
 
                 ipcRenderer.send('move', JSON.stringify({
                     x: event.layerX,
-                    y: event.layerY
+                    y: event.layerY,
+                    color: this.getColor()
                 }));
 
                 last_x = event.layerX;
@@ -117,7 +122,8 @@ module.exports = class Grid {
                     // console.log(range);
                     // console.log("x, y", xIndex, yIndex);
                     ipcRenderer.send('occupied', {
-                        range: range
+                        range: range,
+                        color: this.getColor()
                     });
                 }
             }
@@ -139,7 +145,7 @@ module.exports = class Grid {
             }
         }
         rangeArr.push(min_x, max_x,min_y, max_y);
-        return rangeArr;        
+        return rangeArr;
     }
 
     create2DArray(row, col) {

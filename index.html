@@ -9,7 +9,7 @@
   </head>
   <body>
     <div class='container'>
-      <section>
+      <section id="form_section">
         <div class="form-group">
           <label for="username">Username</label>
           <input type="text" class="form-control" id="username" placeholder="Username">
@@ -25,8 +25,8 @@
         </div>
         <div class="form-group">
           <label for="formControlRange">Percetange of the box</label>
-          <span data-number_boxes="bind"></span>
-          <input type="range" max="20" class="form-control-range" id="number_boxes">
+          <span data-percentage_takeover="bind"></span>
+          <input type="range" max="100" class="form-control-range" id="percentage_takeover">
         </div>
         <div class="form-group">
           <label for="user_color">Color</label>
@@ -37,7 +37,7 @@
         </div>
       </section>
 
-      <section id="grid_section" >
+      <section id="grid_section" style="display: none;">
         <canvas id="grid" width= "800" height = "600" style="border: 1px solid black;">
           <p>Your browser does not support HTML5 canvas</p>
         </canvas>
@@ -51,21 +51,17 @@
 
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/js/bootstrap-colorpicker.min.js"></script>
     <script>
-      var CanvasController = require('./public/grid.js');
-
-      var gridObj = new CanvasController(2, 0.5, 'rgb(255, 165, 0)', 5);
-
-      gridObj.drawGrid();
-
-      var Game = require('./public/Game.js');
+      let Game = require('./public/Game.js');
 
       const { ipcRenderer } = require('electron')
       const canvas = document.getElementById("grid");
       const ctx = canvas.getContext('2d');
+      let game;
 
       jQuery(function() {
-        let game = new Game();
+        game = new Game();
         game.init();
+        window.game = game;
         jQuery('#user_color').colorpicker();
       });
 
@@ -73,29 +69,47 @@
         jQuery(`[data-number_boxes='bind']`).text(
           jQuery("#number_boxes").val()
         );
+      }).trigger("change");
 
+      jQuery("#percentage_takeover").on('change', () => {
+        jQuery(`[data-percentage_takeover='bind']`).text(
+          jQuery("#percentage_takeover").val()
+        );
       }).trigger("change");
 
       ipcRenderer.on('message', (event, payload) => {
+        console.log(payload);
         switch (payload.type) {
           case "move":
-            ctx.beginPath();
-            // ctx.fillStyle = gridObj.getColor();
-            // ctx.arc(payload.args.x, payload.args.y, 5, 0, 2 * Math.PI, true);
+            // ctx.beginPath();
+            // ctx.fillStyle = game.getGrid().getColor();
+            // ctx.arc(payload.args.x, payload.args.y, 2, 0, 2 * Math.PI, true);
             // ctx.fill();
-            ctx.strokeStyle = gridObj.getColor();
-            ctx.lineWidth = gridObj.getWidth();
+            ctx.beginPath();
+            ctx.strokeStyle = payload.args.color;
+            ctx.lineWidth = game.getGrid().getWidth();
+            ctx.moveTo(payload.args.x-1, payload.args.y-1);
             ctx.lineTo(payload.args.x, payload.args.y);
-            ctx.stroke();            
-            console.log(payload);
+            ctx.stroke();
+            // console.log(payload);
             break;
           case "occupied":
             console.log(payload);
             let range = payload.args.range;
             ctx.rect(range[0], range[2], range[1] - range[0], range[3]-range[2]);
-            ctx.fillStyle = gridObj.getColor();
+            ctx.fillStyle = payload.args.color;
             ctx.fill();
           // TO DO: Add handler for configuration
+          case "whoami":
+            console.log("whoami: ", payload);
+            if (payload.args == "master") {
+              game.setMaster();
+            }
+            break;
+          case "configuration":
+            game.setConfiguration(payload.args);
+            game.initGrid();
+            break;
           default:
             break;
         }
