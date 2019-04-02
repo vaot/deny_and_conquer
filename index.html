@@ -109,12 +109,13 @@
             break;
 
           case "occupied":
-
-            game.insertScore(payload);
-
             if (!game.initialized) {
               game.buffer.push(payload);
               return;
+            }
+
+            if (!payload.args.replay) {
+              game.insertScore(payload);
             }
 
             game.getGrid().fillBlock(

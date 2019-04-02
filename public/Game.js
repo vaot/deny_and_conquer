@@ -84,7 +84,6 @@ module.exports = class Game {
     $body.html("");
     let index = 1;
     result.forEach((obj) => {
-      console.log(obj);
       $body.append(`
         <tr>
           <th scope="col">${index}</th>
@@ -139,6 +138,7 @@ module.exports = class Game {
 
     if (this.buffer.length > 0 && !this.master) {
       this.buffer.forEach((payload) => {
+        this.insertScore(payload);
         this.grid.fillBlock(
           payload.args.range,
           payload.args.color,
