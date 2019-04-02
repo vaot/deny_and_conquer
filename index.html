@@ -81,17 +81,19 @@
         console.log(payload);
         switch (payload.type) {
           case "move":
-            // ctx.beginPath();
-            // ctx.fillStyle = game.getGrid().getColor();
-            // ctx.arc(payload.args.x, payload.args.y, 2, 0, 2 * Math.PI, true);
-            // ctx.fill();
             ctx.beginPath();
-            ctx.strokeStyle = payload.args.color;
-            ctx.lineWidth = game.getGrid().getWidth();
-            ctx.moveTo(payload.args.x-1, payload.args.y-1);
-            ctx.lineTo(payload.args.x, payload.args.y);
-            ctx.stroke();
-            // console.log(payload);
+            ctx.fillStyle = payload.args.color;
+            ctx.arc(payload.args.x, payload.args.y, game.getGrid().getWidth() / 2, 0, 2 * Math.PI, true);
+            ctx.fill();
+            ctx.closePath();
+            // ctx.beginPath();
+            // ctx.strokeStyle = payload.args.color;
+            // ctx.lineWidth = game.getGrid().getWidth();
+            // ctx.moveTo(payload.args.x-1, payload.args.y-1);
+            // ctx.lineTo(payload.args.x, payload.args.y);
+            // ctx.stroke();
+            // game.getGrid().drawLine(payload.args.x, payload.args.y, payload.args.range, false);
+            console.log(ctx.fillStyle);
             break;
           case "occupied":
             console.log(payload);
@@ -99,6 +101,7 @@
             ctx.rect(range[0], range[2], range[1] - range[0], range[3]-range[2]);
             ctx.fillStyle = payload.args.color;
             ctx.fill();
+            game.getGrid().fillGridRemote(payload.args.xIndex, payload.args.yIndex);
           // TO DO: Add handler for configuration
           case "whoami":
             console.log("whoami: ", payload);

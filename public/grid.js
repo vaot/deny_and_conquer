@@ -70,45 +70,29 @@ module.exports = class Grid {
         gridArr = this.create2DArray(gridArr_x.length, gridArr_y.length);
     }
 
-    onMouseDown(event) {
-        console.log("mouse down");
-        ctx.beginPath();
-
-        ctx.moveTo(event.layerX, event.layerY);
-        console.log(event.layerX, event.layerY);
-        range = this.getMouseRange(event.layerX, event.layerY);
-        // console.log("range is", range);
-        started = true;
-        occupyArr = this.create2DArray(Math.floor(50 / this.penWidth), Math.floor(50 / this.penWidth));
-
-        // console.log(gridArr);
-        start_x = range[0];
-        start_y = range[2];
-    }
-
-    onMouseUp(event) {
-        console.log("mouse up");
-        started = false;
-    }
-
-    onMouseMove(event) {
-        // console.log("mouse move ", event.layerX, event.layerY);
+    drawLine(xPos, yPos, range, remote) {
+        // console.log("mouse move ", xPos, yPos);
+        if (!remote) {
+            remote = true;
+        }
         ctx.strokeStyle = this.penColor;
         ctx.lineWidth = this.penWidth;
-        console.log(ctx.lineWidth);
+        // console.log(ctx.lineWidth);
         if (started && gridArr[range[0]/50][range[2]/50] == 0) {
-            if (event.layerX >= range[0] + 0.3 && event.layerX <= range[1] -0.3 && event.layerY >= range[2] + 0.3 && event.layerY <= range[3] - 0.3) {
-                ctx.lineTo(event.layerX, event.layerY);
+            if (xPos >= range[0] + 0.3 && xPos <= range[1] -0.3 && yPos >= range[2] + 0.3 && yPos <= range[3] - 0.3) {
+                ctx.lineTo(xPos, yPos);
                 ctx.stroke();
+                if (remote) {                
+                    ipcRenderer.send('move', JSON.stringify({
+                        x: xPos,
+                        y: yPos,
+                        color: this.getColor(),
+                        range: range
+                    }));
+                }
 
-                ipcRenderer.send('move', JSON.stringify({
-                    x: event.layerX,
-                    y: event.layerY,
-                    color: this.getColor()
-                }));
-
-                last_x = event.layerX;
-                last_y = event.layerY;
+                last_x = xPos;
+                last_y = yPos;
 
                 // console.log("sdfsdfsdfsdfsdf",occupyArr);
                 if (this.occupied()) {
@@ -127,7 +111,77 @@ module.exports = class Grid {
                     });
                 }
             }
-        }
+        }        
+    }
+
+    onMouseDown(event) {
+        console.log("mouse down");
+        ctx.beginPath();
+
+        // ctx.moveTo(event.layerX, event.layerY);
+        // console.log(event.layerX, event.layerY);
+        range = this.getMouseRange(event.layerX, event.layerY);
+        // console.log("range is", range);
+        started = true;
+        occupyArr = this.create2DArray(Math.floor(50 / this.penWidth), Math.floor(50 / this.penWidth));
+
+        // console.log(gridArr);
+        start_x = range[0];
+        start_y = range[2];
+    }
+
+    onMouseUp(event) {
+        console.log("mouse up");
+        started = false;
+        ctx.closePath();
+    }
+
+    onMouseMove(event) {
+        // this.drawLine(event.layerX, event.layerY, range);
+        ctx.fillStyle = this.penColor;
+        // ctx.lineWidth = this.penWidth;
+        // console.log(ctx.lineWidth);
+        if (started && gridArr[range[0]/50][range[2]/50] == 0) {
+            if (event.layerX >= range[0] + 0.3 && event.layerX <= range[1] -0.3 && event.layerY >= range[2] + 0.3 && event.layerY <= range[3] - 0.3) {
+                // ctx.lineTo(event.layerX, event.layerY);
+                // ctx.stroke();
+                ctx.arc(event.layerX, event.layerY, this.penWidth / 2, 0, 2 * Math.PI, true);
+                ctx.fill();
+                                  
+                ipcRenderer.send('move', JSON.stringify({
+                    x: event.layerX,
+                    y: event.layerY,
+                    color: this.getColor(),
+                }));
+                
+
+                last_x = event.layerX;
+                last_y = event.layerY;
+
+                // console.log("sdfsdfsdfsdfsdf",occupyArr);
+                if (this.occupied()) {
+                    ctx.rect(range[0], range[2], range[1] - range[0], range[3]-range[2]);
+                    ctx.fillStyle = this.penColor;
+                    ctx.fill();
+                    started = false;
+                    var xIndex = range[0] / 50;
+                    var yIndex = range[2] / 50;
+                    gridArr[xIndex][yIndex] = 1;
+                    // console.log(range);
+                    // console.log("x, y", xIndex, yIndex);
+                    ipcRenderer.send('occupied', {
+                        range: range,
+                        color: this.getColor(),
+                        xIndex: xIndex,
+                        yIndex: yIndex
+                    });
+                }
+            }
+        }   
+    }
+
+    fillGridRemote(x, y) {
+        gridArr[x][y] = 1;
     }
 
     getMouseRange(x, y) {
