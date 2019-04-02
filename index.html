@@ -37,11 +37,29 @@
         </div>
       </section>
 
-      <section id="grid_section" style="display: none;">
-        <canvas id="grid" width= "800" height = "600" style="border: 1px solid black;">
-          <p>Your browser does not support HTML5 canvas</p>
-        </canvas>
+      <section id="game_section" style="display: none;">
+        <section id="grid_section">
+          <canvas id="grid" width= "800" height = "600" style="border: 1px solid black;">
+            <p>Your browser does not support HTML5 canvas</p>
+          </canvas>
+        </section>
+
+        <section id="stats_section">
+          <table class="table">
+            <thead class="thead-dark">
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">PLayer</th>
+                <th scope="col">Boxes</th>
+                <th scope="col">Color</th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+        </section>
       </section>
+
     </div>
 
     <script>
@@ -91,6 +109,9 @@
             break;
 
           case "occupied":
+
+            game.insertScore(payload);
+
             if (!game.initialized) {
               game.buffer.push(payload);
               return;

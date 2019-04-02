@@ -3,7 +3,8 @@ let started = false, ctx, gridArr = [], gridArr_x = [], gridArr_y = [], range = 
 
 
 module.exports = class Grid {
-    constructor (size, percentage, penColor, penWidth) {
+    constructor (size, percentage, penColor, penWidth, game) {
+        this.game = game;
         this.size = size;
         this.percentage = percentage;
         this.penColor = penColor;
@@ -130,7 +131,8 @@ module.exports = class Grid {
                         range: range,
                         color: this.getColor(),
                         xIndex: xIndex,
-                        yIndex: yIndex
+                        yIndex: yIndex,
+                        username: game.user.username
                     });
                 }
             }

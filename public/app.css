@@ -1,3 +1,33 @@
 .container {
   margin-top: 20px;
 }
+
+#game_section {
+  display: flex;
+}
+
+.game-over {
+  pointer-events: none;
+}
+
+.game-over tbody tr:nth-child(1) {
+  box-shadow: 2px 7px 8px #000;
+}
+
+.game-over tbody tr:nth-child(1) td:nth-child(4) {
+  position: relative;
+}
+
+.game-over tbody tr:nth-child(1) td:nth-child(4):before {
+  display: block;
+  position: absolute;
+  content: 'Winner';
+  background: #000;
+  color: #fff;
+  right: -65px;
+  padding: 5px;
+  border-radius: 1px;
+  font-weight: bold;
+  color: #f00;
+  box-shadow: 2px 7px 8px #000;
+}

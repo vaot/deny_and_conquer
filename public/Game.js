@@ -16,8 +16,10 @@ module.exports = class Game {
     this.$percentageInput = jQuery("#percentage_takeover");
     this.$gridSection = jQuery("#grid_section");
     this.$formSection = jQuery("#form_section");
+    this.$gameSection = jQuery("#game_section");
     this.id = this._generateId();
     this.buffer = [];
+    this.scoreSheet = {};
   }
 
   init() {
@@ -44,9 +46,56 @@ module.exports = class Game {
         this.initGrid();
 
         this.$formSection.hide();
-        this.$gridSection.show();
+        this.$gameSection.show();
       }
     });
+  }
+
+  insertScore(payload) {
+    payload = payload.args;
+
+    if (!this.scoreSheet[`${payload.username}:${payload.color}`]) {
+      this.scoreSheet[`${payload.username}:${payload.color}`] = [];
+    }
+    this.scoreSheet[`${payload.username}:${payload.color}`].push(payload);
+
+    let result = [];
+    let total = 0;
+
+    Object.entries(this.scoreSheet).forEach(([key, val]) => {
+      let parts = key.split(":");
+
+      total += val.length;
+
+      result.push({
+        count: val.length,
+        username: parts[0],
+        color: parts[1]
+      })
+    });
+
+    if (total >= (this.user.boxes**2) && this.initialized) {
+      jQuery('body').addClass('game-over');
+    }
+
+    result.sort((r, l) => {  l.count - r.count; });
+
+    let $body = this.$gameSection.find('table tbody');
+    $body.html("");
+    let index = 1;
+    result.forEach((obj) => {
+      console.log(obj);
+      $body.append(`
+        <tr>
+          <th scope="col">${index}</th>
+          <td>${obj.username}</td>
+          <td>${obj.count}</td>
+          <td style='background: ${obj.color};'>${obj.color}</td>
+        </tr>
+      `);
+      index += 1;
+    });
+
   }
 
   getForm() {
@@ -80,11 +129,11 @@ module.exports = class Game {
     this.user.color = user.color;
     this.initGrid();
     this.$formSection.hide();
-    this.$gridSection.show();
+    this.$gameSection.show();
   }
 
   initGrid() {
-    this.grid = new CanvasController(this.user.boxes, this.user.percentage_takeover/100, this.user.color, 5);
+    this.grid = new CanvasController(this.user.boxes, this.user.percentage_takeover/100, this.user.color, 5, this);
     this.grid.drawGrid();
     this.initialized = true;
 
