@@ -29,7 +29,7 @@ module.exports = class Game {
           if (this.user) {
             let form = this.getForm();
 
-
+            this.user.username = form.username;
             this.user.color = form.color;
 
             ipcRenderer.send('session', this.user);
