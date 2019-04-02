@@ -142,7 +142,7 @@ module.exports = class Grid {
         // ctx.lineWidth = this.penWidth;
         // console.log(ctx.lineWidth);
         if (started && gridArr[range[0]/50][range[2]/50] == 0) {
-            if (event.layerX >= range[0] + 0.3 && event.layerX <= range[1] -0.3 && event.layerY >= range[2] + 0.3 && event.layerY <= range[3] - 0.3) {
+            if (event.layerX >= range[0] + 3 && event.layerX <= range[1] -3 && event.layerY >= range[2] + 3 && event.layerY <= range[3] - 3) {
                 // ctx.lineTo(event.layerX, event.layerY);
                 // ctx.stroke();
                 ctx.arc(event.layerX, event.layerY, this.penWidth / 2, 0, 2 * Math.PI, true);
