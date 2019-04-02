@@ -15,8 +15,6 @@ module.exports = class Grid {
             ctx = canvas.getContext('2d');
             ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
             ctx.fillRect(0, 0, canvas.width,canvas.height);
-            // console.log(gridArr_x);
-            // console.log(gridArr_y);
         } else {
             console.log("not support");
         }
@@ -31,6 +29,15 @@ module.exports = class Grid {
 
     getWidth() {
         return this.penWidth;
+    }
+
+    fillBlock(range, color, x, y) {
+        ctx.beginPath();
+        ctx.rect(range[0], range[2], range[1] - range[0], range[3]-range[2]);
+        ctx.fillStyle = color;
+        ctx.fill();
+        this.fillGridRemote(x, y);
+        ctx.closePath();
     }
 
     drawGrid() {
@@ -70,50 +77,6 @@ module.exports = class Grid {
         gridArr = this.create2DArray(gridArr_x.length, gridArr_y.length);
     }
 
-    drawLine(xPos, yPos, range, remote) {
-        // console.log("mouse move ", xPos, yPos);
-        if (!remote) {
-            remote = true;
-        }
-        ctx.strokeStyle = this.penColor;
-        ctx.lineWidth = this.penWidth;
-        // console.log(ctx.lineWidth);
-        if (started && gridArr[range[0]/50][range[2]/50] == 0) {
-            if (xPos >= range[0] + 0.3 && xPos <= range[1] -0.3 && yPos >= range[2] + 0.3 && yPos <= range[3] - 0.3) {
-                ctx.lineTo(xPos, yPos);
-                ctx.stroke();
-                if (remote) {                
-                    ipcRenderer.send('move', JSON.stringify({
-                        x: xPos,
-                        y: yPos,
-                        color: this.getColor(),
-                        range: range
-                    }));
-                }
-
-                last_x = xPos;
-                last_y = yPos;
-
-                // console.log("sdfsdfsdfsdfsdf",occupyArr);
-                if (this.occupied()) {
-                    ctx.rect(range[0], range[2], range[1] - range[0], range[3]-range[2]);
-                    ctx.fillStyle = this.penColor;
-                    ctx.fill();
-                    started = false;
-                    var xIndex = range[0] / 50;
-                    var yIndex = range[2] / 50;
-                    gridArr[xIndex][yIndex] = 1;
-                    // console.log(range);
-                    // console.log("x, y", xIndex, yIndex);
-                    ipcRenderer.send('occupied', {
-                        range: range,
-                        color: this.getColor()
-                    });
-                }
-            }
-        }        
-    }
-
     onMouseDown(event) {
         console.log("mouse down");
         ctx.beginPath();
@@ -137,28 +100,23 @@ module.exports = class Grid {
     }
 
     onMouseMove(event) {
-        // this.drawLine(event.layerX, event.layerY, range);
         ctx.fillStyle = this.penColor;
-        // ctx.lineWidth = this.penWidth;
-        // console.log(ctx.lineWidth);
+
         if (started && gridArr[range[0]/50][range[2]/50] == 0) {
             if (event.layerX >= range[0] + 3 && event.layerX <= range[1] -3 && event.layerY >= range[2] + 3 && event.layerY <= range[3] - 3) {
-                // ctx.lineTo(event.layerX, event.layerY);
-                // ctx.stroke();
                 ctx.arc(event.layerX, event.layerY, this.penWidth / 2, 0, 2 * Math.PI, true);
                 ctx.fill();
-                                  
+
                 ipcRenderer.send('move', JSON.stringify({
                     x: event.layerX,
                     y: event.layerY,
                     color: this.getColor(),
                 }));
-                
+
 
                 last_x = event.layerX;
                 last_y = event.layerY;
 
-                // console.log("sdfsdfsdfsdfsdf",occupyArr);
                 if (this.occupied()) {
                     ctx.rect(range[0], range[2], range[1] - range[0], range[3]-range[2]);
                     ctx.fillStyle = this.penColor;
@@ -167,8 +125,7 @@ module.exports = class Grid {
                     var xIndex = range[0] / 50;
                     var yIndex = range[2] / 50;
                     gridArr[xIndex][yIndex] = 1;
-                    // console.log(range);
-                    // console.log("x, y", xIndex, yIndex);
+
                     ipcRenderer.send('occupied', {
                         range: range,
                         color: this.getColor(),
@@ -177,7 +134,7 @@ module.exports = class Grid {
                     });
                 }
             }
-        }   
+        }
     }
 
     fillGridRemote(x, y) {

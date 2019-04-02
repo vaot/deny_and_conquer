@@ -7,6 +7,7 @@ module.exports = class Game {
   constructor(gridObj) {
     this.master = false;
     this.grid = null;
+    this.initialized = false;
     this.$submitBtn = jQuery("#play");
     this.$usernameInput = jQuery("#username");
     this.$gameIdInput = jQuery("#game_id");
@@ -16,6 +17,7 @@ module.exports = class Game {
     this.$gridSection = jQuery("#grid_section");
     this.$formSection = jQuery("#form_section");
     this.id = this._generateId();
+    this.buffer = [];
   }
 
   init() {
@@ -27,10 +29,10 @@ module.exports = class Game {
           if (this.user) {
             let form = this.getForm();
 
+
             this.user.color = form.color;
-            this.initGrid();
-            this.$formSection.hide();
-            this.$gridSection.show();
+
+            ipcRenderer.send('session', this.user);
           };
           alert("An user has already initiated the game session!");
           return;
@@ -62,6 +64,10 @@ module.exports = class Game {
     return this.grid;
   }
 
+  getConfig() {
+    return this.user;
+  }
+
   setConfiguration(args) {
     this.user = args;
   }
@@ -70,9 +76,28 @@ module.exports = class Game {
     this.master = true;
   }
 
+  initWithSession(user) {
+    this.user.color = user.color;
+    this.initGrid();
+    this.$formSection.hide();
+    this.$gridSection.show();
+  }
+
   initGrid() {
     this.grid = new CanvasController(this.user.boxes, this.user.percentage_takeover/100, this.user.color, 5);
     this.grid.drawGrid();
+    this.initialized = true;
+
+    if (this.buffer.length > 0 && !this.master) {
+      this.buffer.forEach((payload) => {
+        this.grid.fillBlock(
+          payload.args.range,
+          payload.args.color,
+          payload.args.xIndex,
+          payload.args.yIndex
+         );
+      });
+    }
   }
 
   isValidInputs() {
