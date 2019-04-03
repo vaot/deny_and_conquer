@@ -96,9 +96,6 @@
       }).trigger("change");
 
       ipcRenderer.on('message', (event, payload) => {
-        if (payload.type != 'move') {
-          console.log(payload)
-        }
         switch (payload.type) {
           case "move":
             ctx.beginPath();

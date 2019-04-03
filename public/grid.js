@@ -14,7 +14,7 @@ module.exports = class Grid {
         canvas.height = this.size * 50;
         if (canvas.getContext) {
             ctx = canvas.getContext('2d');
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.fillStyle = 'rgba(0, 0, 0, 0)';
             ctx.fillRect(0, 0, canvas.width,canvas.height);
         } else {
             console.log("not support");
@@ -80,7 +80,7 @@ module.exports = class Grid {
 
     onMouseDown(event) {
         console.log("mouse down");
-        ctx.beginPath();
+        // ctx.beginPath();
 
         // ctx.moveTo(event.layerX, event.layerY);
         // console.log(event.layerX, event.layerY);
@@ -97,7 +97,7 @@ module.exports = class Grid {
     onMouseUp(event) {
         console.log("mouse up");
         started = false;
-        ctx.closePath();
+        // ctx.closePath();
     }
 
     onMouseMove(event) {
@@ -105,6 +105,7 @@ module.exports = class Grid {
 
         if (started && gridArr[range[0]/50][range[2]/50] == 0) {
             if (event.layerX >= range[0] + 3 && event.layerX <= range[1] -3 && event.layerY >= range[2] + 3 && event.layerY <= range[3] - 3) {
+                ctx.beginPath();
                 ctx.arc(event.layerX, event.layerY, this.penWidth / 2, 0, 2 * Math.PI, true);
                 ctx.fill();
 
@@ -119,6 +120,7 @@ module.exports = class Grid {
                 last_y = event.layerY;
 
                 if (this.occupied()) {
+                    ctx.beginPath();
                     ctx.rect(range[0], range[2], range[1] - range[0], range[3]-range[2]);
                     ctx.fillStyle = this.penColor;
                     ctx.fill();
