@@ -98,6 +98,10 @@
       ipcRenderer.on('message', (event, payload) => {
         switch (payload.type) {
           case "move":
+            if (!game.initialized) {
+              return;
+            }
+
             ctx.beginPath();
             ctx.fillStyle = payload.args.color;
             ctx.arc(payload.args.x, payload.args.y, game.getGrid().getWidth() / 2, 0, 2 * Math.PI, true);

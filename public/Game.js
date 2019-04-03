@@ -74,14 +74,11 @@ module.exports = class Game {
       })
     });
 
-    if (total >= (this.user.boxes**2) && this.initialized) {
-      jQuery('body').addClass('game-over');
-    }
-
     result.sort((r, l) => {  l.count - r.count; });
 
     let $body = this.$gameSection.find('table tbody');
     $body.html("");
+
     let index = 1;
     result.forEach((obj) => {
       $body.append(`
@@ -95,6 +92,9 @@ module.exports = class Game {
       index += 1;
     });
 
+    if (total >= (this.user.boxes**2) && this.initialized) {
+      jQuery('body').addClass('game-over');
+    }
   }
 
   getForm() {
