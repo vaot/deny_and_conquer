@@ -74,23 +74,27 @@ module.exports = class Game {
       })
     });
 
-    result.sort((r, l) => {  l.count - r.count; });
+    result.sort((r, l) => { return l.count - r.count; });
 
     let $body = this.$gameSection.find('table tbody');
     $body.html("");
 
+    let template = "";
     let index = 1;
+
     result.forEach((obj) => {
-      $body.append(`
+      template += `
         <tr>
           <th scope="col">${index}</th>
           <td>${obj.username}</td>
           <td>${obj.count}</td>
           <td style='background: ${obj.color};'>${obj.color}</td>
         </tr>
-      `);
+      `
       index += 1;
     });
+
+    $body.append(template);
 
     if (total >= (this.user.boxes**2) && this.initialized) {
       jQuery('body').addClass('game-over');
