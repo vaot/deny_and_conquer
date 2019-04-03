@@ -105,9 +105,9 @@ module.exports = class Grid {
 
         if (started && gridArr[range[0]/50][range[2]/50] == 0) {
             if (event.layerX >= range[0] + 3 && event.layerX <= range[1] -3 && event.layerY >= range[2] + 3 && event.layerY <= range[3] - 3) {
-                ctx.beginPath();
-                ctx.arc(event.layerX, event.layerY, this.penWidth / 2, 0, 2 * Math.PI, true);
-                ctx.fill();
+                // ctx.beginPath();
+                // ctx.arc(event.layerX, event.layerY, this.penWidth / 2, 0, 2 * Math.PI, true);
+                // ctx.fill();
 
                 ipcRenderer.send('move', JSON.stringify({
                     x: event.layerX,
@@ -127,7 +127,7 @@ module.exports = class Grid {
                     started = false;
                     var xIndex = range[0] / 50;
                     var yIndex = range[2] / 50;
-                    gridArr[xIndex][yIndex] = 1;
+                    // gridArr[xIndex][yIndex] = 1;
 
                     ipcRenderer.send('occupied', {
                         range: range,
